@@ -34,9 +34,8 @@ int* kingdomCards(int k1, int k2, int k3, int k4, int k5, int k6, int k7,
   return k;
 }
 
-int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
-		   struct gameState *state) {
-
+int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed, struct gameState *state)
+{
   int i;
   int j;
   int it;
@@ -200,7 +199,6 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
 
 int shuffle(int player, struct gameState *state) {
 
-
   int newDeck[MAX_DECK];
   int newDeckPos = 0;
   int card;
@@ -342,6 +340,7 @@ int fullDeckCount(int player, int card, struct gameState *state) {
 
   return count;
 }
+
 
 int whoseTurn(struct gameState *state) {
   return state->whoseTurn;
@@ -652,11 +651,11 @@ int Smithy(struct gameState *state, int handPos)
   for (i = 0; i < 3; i++)
   {  drawCard(currentPlayer, state);  }
   //discard card from hand
-  //discardCard(handPos, currentPlayer, state, 0);          //bug introduced
+  discardCard(handPos, currentPlayer, state, 0);
   return 0;
 }
 
-int Adventurer(struct gameState *state, int *temphand)
+int Adventurer(struct gameState *state, int handPos, int *temphand)
 {
   int drawntreasure = 0;
   int currentPlayer = whoseTurn(state);
@@ -680,11 +679,12 @@ int Adventurer(struct gameState *state, int *temphand)
     }
   }
 
-  while(z-1 > 0)  //bug introduced
+  while(z-1 >= 0)
   {
     state->discard[currentPlayer][state->discardCount[currentPlayer]++] = temphand[z-1]; // discard all cards in play that have been drawn
     z=z-1;
   }
+  discardCard(handPos, currentPlayer, state, 0);
   return 0;
 }
 
@@ -700,9 +700,9 @@ int CouncilRoom(struct gameState *state, int handPos)
   //Each other player draws a card
   for (i = 0; i < state->numPlayers; i++)
   {
-    //if ( i != currentPlayer )
-    //{  drawCard(i, state);  }
-    drawCard(i, state);           //bug introduced
+    if ( i != currentPlayer )
+    {  drawCard(i, state);  }
+    drawCard(i, state);
   }
   //put played card in played card pile
   discardCard(handPos, currentPlayer, state, 0);
@@ -767,12 +767,12 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
   switch( card )
     {
     case adventurer:
-      Adventurer(state, temphand); //Refactored above
-      //break;      //bug introduced
+      Adventurer(state, handPos, temphand); //Refactored above
+      break;
 
     case council_room:
       CouncilRoom(state, handPos); //Refactored above
-      //break;
+      break;
 
     case feast:
       //gain card with cost up to 5
@@ -870,7 +870,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 
     case smithy:
       Smithy(state, handPos);  //Refactored above
-      //break;          //bug introduced
+      break;
 
     case village:
       Village(state, handPos); //Refactored above
